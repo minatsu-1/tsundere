@@ -48,4 +48,19 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){retur
       location.href = 'search.html?q=' + encodeURIComponent(v);
     });
   }
+
+  /* 随机傲娇：从 100 人里抽一个（避免连续抽到同一个人） */
+  var rb = document.querySelector('.hm-random');
+  if (rb) {
+    rb.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (!C.length) return;
+      var last = '';
+      try { last = sessionStorage.getItem('tsundere.lastRandom') || ''; } catch (err) {}
+      var pool = C.length > 1 ? C.filter(function (c) { return String(c.anilist) !== last; }) : C;
+      var pick = pool[Math.floor(Math.random() * pool.length)];
+      try { sessionStorage.setItem('tsundere.lastRandom', String(pick.anilist)); } catch (err) {}
+      location.href = 'char.html?v=4&id=' + encodeURIComponent(pick.anilist);
+    });
+  }
 })();
