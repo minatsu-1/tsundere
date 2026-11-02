@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+  <meta name="referrer" content="same-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>傲娇图鉴 · TSUNDERE ARCHIVE</title>
+<meta name="description" content="这里收着我这些年被「べ、別に…」戳中的那些瞬间。">
+<style>
+  body{ margin:0; }
+  /* 只在开场还没结束的时候锁滚动；开场一结束就交还给页面 */
+  html.intro-pending body{ visibility:hidden; }
+  html.intro-pending, html.intro-pending body{ overflow:hidden; }
+  html.intro-done, html.intro-done body{ height:auto; overflow:visible; }
+</style>
+<script>
+  /* 开场盖上来之前先藏住正文，避免一闪。
+     播不播只在这里判一次，结果写到 <html data-intro>，intro.js 照着它执行。
+     规则：?intro=0 跳过；?intro=1 重播；?introat= 调试定格必播；
+           从站内页面点回来的不播；同一个标签里已经播过的（sessionStorage）不播。
+     记忆只放 sessionStorage —— 新开浏览器或新标签会再播一次，关掉即重置。 */
+  (function () {
+    var KEY = 'tsundere.intro.v1';
+    var q = new URLSearchParams(location.search);
+    var play = true;
+    if (q.get('intro') === '1') play = true;
+    else if (q.get('intro') === '0') play = false;
+    else if (q.get('introat') !== null) play = true;
+    else if (q.get('view') === 'home') play = false;
+    else if (document.referrer && document.referrer.indexOf(location.origin) === 0) play = false;
+    else {
+      try { if (sessionStorage.getItem(KEY) === '1') play = false; } catch (e) {}
+    }
+    /* 旧版本把标记写进了 localStorage（等于永远不播），这里顺手清掉 */
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    document.documentElement.setAttribute('data-intro', play ? 'play' : 'skip');
+    if (play) {
+      var h = document.documentElement;
+      h.classList.add('intro-pending');
+      setTimeout(function () { h.classList.remove('intro-pending'); }, 4000);  /* 兜底 */
+    }
+  })();
+</script>
+<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="paper.css?v=3">
+<link rel="stylesheet" href="intro.css">
+<link rel="stylesheet" href="bubble.css">
+<link rel="stylesheet" href="main.css?v=6">
+</head>
+<body>
+
+<div id="titleScreen">
+  <div class="stack">
+    <header class="hero">
+      <h1>傲娇<span class="dot" aria-hidden="true"></span>图鉴</h1>
+      <p class="hint">请点击对话框</p>
+    </header>
+
+    <div id="bubble" role="button" tabindex="0" aria-label="进入图鉴">
+      <span class="tail"><i></i></span>
+      <span class="txt">你这<em>笨蛋</em>别乱点啊</span>
+    </div>
+  </div>
+</div>
+
+<main id="mainScreen" hidden>
+  <div id="wall" aria-hidden="true"></div>
+  <div id="veil" aria-hidden="true"></div>
+
+  <div class="hm-wrap">
+      <div class="hm-top">
+        <h1>傲娇<span class="dot"></span>图鉴</h1>
+        <label class="hm-search">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.2-4.2"/></svg>
+          <input id="q" type="search" placeholder="搜角色名、作品名、关键字" autocomplete="off">
+        </label>
+      </div>
+
+      <div class="hm-label">常搜的关键字</div>
+      <div class="hm-kw">
+        <a class="hm-chip" href="search.html?q=主角嫌恶">主角嫌恶</a>
+        <a class="hm-chip" href="search.html?q=高傲·大小姐">高傲·大小姐</a>
+        <a class="hm-chip" href="search.html?q=损友·青梅竹马">损友·青梅竹马</a>
+        <a class="hm-chip" href="search.html?q=孤高·拒交">孤高·拒交</a>
+        <a class="hm-chip" href="search.html?q=正经型">正经型</a>
+        <a class="hm-chip" href="search.html?q=特殊处境">特殊处境</a>
+        <a class="hm-chip" href="#">毒舌</a>
+        <a class="hm-chip" href="#">强气</a>
+        <a class="hm-chip" href="#">反差</a>
+        <a class="hm-chip" href="#">转娇</a>
+        <a class="hm-chip" href="#">口是心非</a>
+      </div>
+
+      <div class="hm-label">随机</div>
+      <a class="hm-random" href="#">
+        <span><span class="t">随机傲娇</span><span class="n">∞</span></span>
+        <span class="a">摇一个 →</span>
+      </a>
+
+            <div class="hm-label">性格</div>
+      <div class="hm-grid hm-grid--p" id="gridP"></div>
+
+      <div class="hm-label">番剧类型</div>
+      <div class="hm-grid" id="gridG"></div>
+
+      <div class="hr-bottom">
+        <button id="backBtn" type="button">返回标题</button>
+      </div>
+    </div>
+  </main>
+
+<script src="anime.umd.min.js"></script>
+<script src="intro.js?v=5"></script>
+<script src="wall.js"></script>
+<script src="bubble.js?v=3"></script>
+  <script src="data.js"></script>
+  <script src="app.js?v=2"></script>
+</body>
+</html>
+

@@ -1,0 +1,295 @@
+/* ─────────────────────────────────────────────
+   傲娇图鉴 / TSUNDERE ARCHIVE
+   ───────────────────────────────────────────── */
+
+:root{
+  --bg:        #0b0b0d;
+  --bg-card:   #141417;
+  --bg-card-2: #191920;
+  --line:      #26262c;
+
+  --fg:        #ece9e4;
+  --fg-soft:   #b8b3ac;
+  --dim:       #7d7973;
+
+  --accent:    #ff3b5c;
+  --accent-dk: #c42440;
+
+  --sans: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  --serif: "Songti SC", "SimSun", "STSong", "Noto Serif CJK SC", "Yu Mincho", serif;
+
+  --r: 14px;
+  --wrap: 1180px;
+}
+
+*{ box-sizing: border-box; }
+
+html{ -webkit-text-size-adjust: 100%; }
+
+body{
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 背景一层极淡的横纹，压住纯黑发死的问题 */
+body::before{
+  content:"";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(1000px 500px at 50% -10%, rgba(255,59,92,.10), transparent 70%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.012) 0 1px, transparent 1px 4px);
+  z-index: 0;
+}
+
+/* ── 头部 ───────────────────────────────── */
+
+.hero{
+  position: relative;
+  z-index: 1;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 96px 28px 40px;
+}
+
+.eyebrow{
+  margin: 0 0 18px;
+  font-size: 12px;
+  letter-spacing: .38em;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.hero h1{
+  margin: 0 0 22px;
+  font-size: clamp(44px, 8vw, 96px);
+  line-height: 1.02;
+  letter-spacing: -.02em;
+  font-weight: 900;
+}
+
+.hero h1 .dot{
+  display: inline-block;
+  width: .15em;
+  height: .15em;
+  margin: 0 .14em .07em;
+  border-radius: 50%;
+  background: var(--accent);
+  vertical-align: baseline;
+}
+
+.lede{
+  margin: 0;
+  max-width: 40em;
+  font-size: clamp(15px, 1.6vw, 18px);
+  color: var(--fg-soft);
+}
+
+.dim{ color: var(--dim); }
+
+/* ── 筛选 ───────────────────────────────── */
+
+.filters{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+
+.chip{
+  appearance: none;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--fg-soft);
+  font: inherit;
+  font-size: 13px;
+  padding: 7px 15px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color .18s, border-color .18s, background .18s;
+}
+
+.chip:hover{ color: var(--fg); border-color: #3a3a44; }
+
+.chip.is-on{
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+/* ── 卡片网格 ───────────────────────────── */
+
+.grid{
+  position: relative;
+  z-index: 1;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 8px 28px 90px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 26px;
+}
+
+.card{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+
+.card:hover{
+  transform: translateY(-5px);
+  border-color: rgba(255,59,92,.55);
+  box-shadow: 0 18px 40px -18px rgba(255,59,92,.35);
+}
+
+/* 缩略图区（暂无图片时用渐变占位） */
+.thumb{
+  position: relative;
+  aspect-ratio: 4 / 3;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(140deg, var(--c1, #232331), var(--c2, #15151c));
+  overflow: hidden;
+}
+
+.thumb img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .5s cubic-bezier(.2,.7,.3,1);
+}
+
+.card:hover .thumb img{ transform: scale(1.045); }
+
+.thumb .initial{
+  font-family: var(--serif);
+  font-size: clamp(64px, 12vw, 104px);
+  color: rgba(255,255,255,.10);
+  user-select: none;
+  letter-spacing: .06em;
+}
+
+/* 占位图上的一对引号，暗示"这是台词位" */
+.thumb::after{
+  content: "「";
+  position: absolute;
+  left: 18px;
+  bottom: -14px;
+  font-family: var(--serif);
+  font-size: 130px;
+  line-height: 1;
+  color: rgba(255,255,255,.05);
+  pointer-events: none;
+}
+
+.tag{
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  font-size: 11px;
+  letter-spacing: .1em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(11,11,13,.72);
+  border: 1px solid rgba(255,255,255,.16);
+  backdrop-filter: blur(6px);
+}
+
+/* ── 卡片正文 ───────────────────────────── */
+
+.body{
+  padding: 22px 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.who{
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.who h2{
+  margin: 0;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: .01em;
+}
+
+.who .work{
+  font-size: 12.5px;
+  color: var(--dim);
+}
+
+.line-ja{
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.85;
+  color: var(--fg);
+}
+
+.line-ja::before{ content: "「"; color: var(--accent); }
+.line-ja::after { content: "」"; color: var(--accent); }
+
+.line-zh{
+  margin: -6px 0 0;
+  font-size: 14px;
+  color: var(--fg-soft);
+}
+
+.note{
+  position: relative;
+  margin: auto 0 0;
+  padding-left: 14px;
+  font-size: 14.5px;
+  color: var(--fg-soft);
+  border-left: 2px solid var(--accent-dk);
+}
+
+/* ── 页脚 ───────────────────────────────── */
+
+.foot{
+  position: relative;
+  z-index: 1;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 36px 28px 80px;
+  border-top: 1px solid var(--line);
+  font-size: 13.5px;
+  color: var(--fg-soft);
+}
+
+.foot p{ margin: 6px 0; }
+.foot strong{ color: var(--accent); font-size: 15px; }
+
+/* ── 窄屏 ───────────────────────────────── */
+
+@media (max-width: 560px){
+  .hero{ padding: 64px 20px 32px; }
+  .grid{ padding: 4px 20px 64px; gap: 20px; grid-template-columns: 1fr; }
+  .foot{ padding: 28px 20px 64px; }
+  .line-ja{ font-size: 17px; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ transition: none !important; }
+}

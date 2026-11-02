@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+  <meta name="referrer" content="same-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>分类 · 傲娇图鉴</title>
+<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="paper.css?v=3">
+<link rel="stylesheet" href="main.css?v=6">
+</head>
+<body class="intro-done page-inner">
+  <div id="wall" aria-hidden="true"></div>
+  <div id="veil" aria-hidden="true"></div>
+  <main id="mainScreen" class="is-in" style="opacity:1;pointer-events:auto">
+    <div class="page">
+      <div class="hm-top">
+        <a class="brand" href="index.html?view=home">傲娇<span>·</span>图鉴</a>
+        <div class="hm-search"><input type="text" placeholder="搜索角色名、作品名、关键字" id="q"></div>
+      </div>
+      <a class="back" href="index.html?view=home">← 回目录</a>
+      <h1 id="t">…</h1>
+      <p id="s" class="cnt"></p>
+      <div class="ch-grid" id="g"></div>
+    </div>
+  </main>
+<script src="data.js"></script>
+<script>
+/* 顶栏搜索框：回车跳到搜索结果页 */
+(function () {
+  var q = document.getElementById('q');
+  if (!q) return;
+  q.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    var v = q.value.trim();
+    if (!v) return;
+    e.preventDefault();
+    location.href = 'search.html?q=' + encodeURIComponent(v);
+  });
+})();
+</script>
+<script>
+(function () {
+  var C = window.CHARS || [];
+  /* 防御性转义：data.js 目前是可信静态数据，但转义后即使以后有人手改数据也不会破坏页面结构 */
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (m) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+    });
+  }
+  var raw = new URLSearchParams(location.search).get('k') || '';
+  var parts = raw.split(':'), kind = parts[0], label = parts[1] || '';
+  var list = C.filter(function (c) {
+    return kind === 'type' ? c.type === label : (c.genres || []).indexOf(label) >= 0;
+  });
+  document.title = label + ' · 傲娇图鉴';
+  document.getElementById('t').textContent = label;
+  document.getElementById('s').textContent = list.length + ' 位';
+  document.getElementById('g').innerHTML = list.map(function (c) {
+    return '<a class="ch" href="char.html?v=4&id=' + encodeURIComponent(String(c.anilist)) + '">' +
+             '<div class="ch-img"><img src="' + esc(c.img) + '" alt="' + esc(c.name) + '" loading="lazy"></div>' +
+             '<p class="ch-name">' + esc(c.name) + '</p>' +
+             '<p class="ch-work">' + esc(c.work) + ' · ' + esc(c.year) + '</p></a>';
+  }).join('');
+})();
+</script>
+</body>
+</html>

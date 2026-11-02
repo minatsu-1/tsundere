@@ -1,0 +1,81 @@
+/* ─────────────────────────────────────────────
+   傲娇图鉴 / 纸白版
+   叠在 style.css 后面加载，只覆盖颜色与质感。
+   ───────────────────────────────────────────── */
+
+:root{
+  --bg:        #f7f4ee;   /* 纸：不是纯白，带一点暖 */
+  --bg-card:   #fffdf9;   /* 卡面比纸再亮一档 */
+  --bg-card-2: #f1ece3;
+  --line:      #e0d9cd;   /* 极细的灰褐分割线 */
+
+  --fg:        #1a1815;   /* 墨：不用纯黑 */
+  --fg-soft:   #54504a;
+  --dim:       #8b857b;
+
+  --accent:    #c8102e;   /* 白底上亮红会飘，压深成朱 */
+  --accent-dk: #a00d25;
+}
+
+/* 去掉暗色版的红色辉光与横纹，换成极淡的纸纹 */
+body::before{
+  background:
+    radial-gradient(900px 420px at 50% -8%, rgba(200,16,46,.045), transparent 72%),
+    repeating-linear-gradient(0deg, rgba(26,24,21,.016) 0 1px, transparent 1px 5px);
+}
+
+/* 卡片：纸面 + 细边 + 极淡投影，不用发光 */
+.card{
+  background: var(--bg-card);
+  box-shadow: 0 1px 2px rgba(26,24,21,.04), 0 10px 24px -20px rgba(26,24,21,.35);
+}
+
+.card:hover{
+  border-color: rgba(200,16,46,.45);
+  box-shadow: 0 2px 4px rgba(26,24,21,.05), 0 22px 44px -26px rgba(26,24,21,.45);
+}
+
+/* 占位图：纸的深浅，不是霓虹渐变。
+   data.js 里每张卡写的是暗色 --c1/--c2，内联变量优先级最高，
+   所以这里直接盖掉背景，再按次序给一点点色差。 */
+.thumb{
+  background: linear-gradient(140deg, #f2ece2, #e6dfd2) !important;
+}
+.grid .card:nth-child(3n+2) .thumb{
+  background: linear-gradient(140deg, #eeeef0, #e0e2e7) !important;
+}
+.grid .card:nth-child(3n) .thumb{
+  background: linear-gradient(140deg, #e9edee, #dde4e6) !important;
+}
+
+.thumb .initial{
+  color: rgba(26,24,21,.11);
+}
+
+.thumb::after{
+  color: rgba(26,24,21,.06);
+}
+
+/* 分类标签：白底黑字细边 */
+.tag{
+  color: var(--fg);
+  background: rgba(255,253,249,.86);
+  border: 1px solid rgba(26,24,21,.14);
+}
+
+/* 筛选胶囊 */
+.chip:hover{ color: var(--fg); border-color: #c6bdb0; }
+
+.chip.is-on{
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* 卡片里那条竖线 */
+.note{
+  border-left-color: var(--accent-dk);
+}
+
+/* 页脚数字 */
+.foot strong{ color: var(--accent); }

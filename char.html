@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+  <meta name="referrer" content="same-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>角色 · 傲娇图鉴</title>
+<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="paper.css?v=3">
+<link rel="stylesheet" href="main.css?v=6">
+</head>
+<body class="intro-done page-inner">
+  <div id="wall" aria-hidden="true"></div>
+  <div id="veil" aria-hidden="true"></div>
+  <main id="mainScreen" class="is-in" style="opacity:1;pointer-events:auto">
+    <div class="page">
+      <div class="hm-top">
+        <a class="brand" href="index.html?view=home">傲娇<span>·</span>图鉴</a>
+        <div class="hm-search"><input type="text" placeholder="搜索角色名、作品名、关键字" id="q"></div>
+      </div>
+      <a class="back" href="index.html?view=home">← 回目录</a>
+      <div id="box"></div>
+    </div>
+  </main>
+<script src="data.js"></script>
+<script src="quotes.js?v=5"></script>
+<script>
+/* 顶栏搜索框：回车跳到搜索结果页 */
+(function () {
+  var q = document.getElementById('q');
+  if (!q) return;
+  q.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    var v = q.value.trim();
+    if (!v) return;
+    e.preventDefault();
+    location.href = 'search.html?q=' + encodeURIComponent(v);
+  });
+})();
+</script>
+<script>
+(function () {
+  /* 从分类页点进来的：左上角「回目录」要回到刚才那个分类页（而不是图鉴首页）。
+     优先用 referrer；没有 referrer 时退回首页目录。 */
+  var back = document.querySelector('.back');
+  var ref = document.referrer || '';
+  if (back && ref.indexOf(location.origin) === 0 && /\/cat\.html(\?|$)/.test(ref)) {
+    back.href = ref;
+    try {
+      var m = /[?&]k=([^&]*)/.exec(ref);
+      var rawK = m ? decodeURIComponent(m[1]) : '';
+      var lbl = rawK.replace(/^[^:]*:/, '');
+      if (lbl) back.textContent = '← 回「' + lbl + '」';
+    } catch (e) {}
+    var brand = document.querySelector('.brand');
+    if (brand) brand.href = 'index.html?view=home';
+  }
+  var C = window.CHARS || [];
+  /* 防御性转义（data.js 是可信静态数据，转义只是给以后手改数据上保险） */
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (m) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+    });
+  }
+  var id = new URLSearchParams(location.search).get('id');
+  var c = null;
+  for (var i = 0; i < C.length; i++) if (String(C[i].anilist) === String(id)) c = C[i];
+  if (!c) { document.getElementById('box').innerHTML = '<p class="cnt">没有这个角色。</p>'; return; }
+  document.title = c.name + ' · 傲娇图鉴';
+  var tags = ['<a class="tg" href="search.html?q=' + encodeURIComponent(c.type) + '">' + esc(c.type) + '</a>']
+    .concat((c.genres || []).map(function (g) {
+      return '<a class="tg tg-g" href="search.html?q=' + encodeURIComponent(g) + '">' + esc(g) + '</a>';
+    })).join('');
+  var Q = (window.QUOTES || {})[c.name] || {};
+  /* ja=日文原文 / zh=中文（无原文时为意译）/ en=英文原句 / src+url=出处
+     zhOrig：出处是萌娘百科的语录段 → 中文本身即原作台词的中译，不再标「意译」 */
+  var zhOrig = !Q.ja && !Q.en && /萌娘百科/.test(Q.src || '');
+  var quoteHtml = '<div class="cd-quote">';
+  if (Q.ja) {
+    quoteHtml += '<p class="cd-line">「' + esc(Q.ja) + '」</p>' +
+                 '<p class="cd-tr">译：' + esc(Q.zh) + '</p>';
+  } else if (Q.zh) {
+    quoteHtml += '<p class="cd-line">「' + esc(Q.zh) + '」</p>';
+    if (zhOrig) quoteHtml += '<p class="cd-tr">※ 原作台词的中译</p>';
+    else if (!Q.en) quoteHtml += '<p class="cd-tr">※ 中译（原作出处待考据）</p>';
+  } else {
+    quoteHtml += '<p class="cd-line">台词待补。</p>';
+  }
+  if (Q.en && !Q.ja) quoteHtml += '<p class="cd-en">英文台词（Animechan）：' + esc(Q.en) + '</p>';
+  if (Q.src) {
+    quoteHtml += '<p class="cd-src">出处：' +
+      (Q.url ? '<a class="cd-lnk" href="' + esc(Q.url) + '" target="_blank" rel="noopener noreferrer">' + esc(Q.src) + '</a>'
+             : esc(Q.src)) + '</p>';
+  }
+  quoteHtml += '</div>';
+  var noteHtml = '<p class="cd-note">' + esc(Q.note || '批注待补。') + '</p>';
+  document.getElementById('box').innerHTML =
+    '<div id="charBody">' +
+      '<div class="cd-img"><img src="' + esc(c.img) + '" alt="' + esc(c.name) + '"></div>' +
+      '<div class="cd-info">' +
+        '<h2>' + esc(c.name) + '</h2>' +
+        '<p class="cd-ja">' + esc(c.native) + '</p>' +
+        '<p class="cd-work">' + esc(c.work) + '　' + esc(c.year) + '</p>' +
+        '<p class="cd-tags">' + tags + '</p>' +
+        quoteHtml +
+        noteHtml +
+      '</div></div>';
+})();
+</script>
+</body>
+</html>

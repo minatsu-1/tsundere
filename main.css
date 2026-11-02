@@ -1,0 +1,608 @@
+/* ─────────────────────────────────────────────
+   主页面
+   底：一整面日文字墙，极淡，当纸的纹理
+   上：内容列
+   ───────────────────────────────────────────── */
+
+#mainScreen{
+  position:fixed; inset:0;
+  overflow-y:auto;
+  scroll-behavior:auto;
+  overscroll-behavior:contain;
+  opacity:0; pointer-events:none;
+}
+#mainScreen.is-in{ opacity:1; pointer-events:auto; }
+
+/* ── 字墙 ── */
+#wall{
+  position:fixed; inset:0;
+  z-index:0;
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(44px, 1fr));
+  grid-auto-rows:44px;
+  overflow:hidden;
+  font-family:"Noto Serif JP","Noto Serif SC","Yu Mincho","MS Mincho",serif;
+  font-size:27px; line-height:1;
+  color:rgba(26,24,21,.055);
+  user-select:none;
+  pointer-events:none;
+  -webkit-mask-image:radial-gradient(ellipse 82% 74% at 50% 42%, #000 26%, transparent 100%);
+          mask-image:radial-gradient(ellipse 82% 74% at 50% 42%, #000 26%, transparent 100%);
+}
+#wall span{ display:flex; align-items:center; justify-content:center; }
+#wall span.p{ animation:pulse var(--t, 3.5s) ease-in-out infinite var(--d, 0s); }
+#wall span.p.b{ color:rgba(26,24,21,.62); }
+#wall span.p.r{ color:rgba(200,16,46,.85); }
+
+@keyframes pulse{
+  0%, 58%, 100%{ opacity:.14; }
+  26%{ opacity:1; }
+}
+@media (prefers-reduced-motion: reduce){
+  #wall span.p{ animation:none; opacity:.45; }
+}
+
+/* 中间一层纸雾：让内容区干净，字墙退到四周 */
+#veil{
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:radial-gradient(ellipse 52% 58% at 50% 46%,
+             rgba(247,244,238,.86) 0%,
+             rgba(247,244,238,.58) 56%,
+             rgba(247,244,238,0) 100%);
+}
+
+/* ── 内容列 ── */
+.page{
+  position:relative; z-index:1;
+  max-width:820px;
+  margin:0 auto;
+  padding:12vh 28px 16vh;
+}
+
+.page .stub{
+  text-align:center;
+  color:#8b857b;
+  font-family:"Noto Serif JP","Noto Serif SC","Yu Mincho",serif;
+  font-size:clamp(15px, 1.6vw, 19px);
+  line-height:2.1;
+  letter-spacing:.06em;
+}
+.page .stub b{
+  display:block;
+  color:#1a1815;
+  font-size:1.6em;
+  letter-spacing:.02em;
+  margin-bottom:.7em;
+}
+.page .stub button{
+  margin-top:30px; padding:10px 28px;
+  font:inherit; font-size:.8em; letter-spacing:.12em;
+  background:none; color:#54504a;
+  border:1px solid #d6cec1; border-radius:999px;
+  cursor:pointer;
+}
+.page .stub button:hover{ border-color:#c8102e; color:#c8102e; }
+
+/* ─────────────────────────────────────────────
+   模块：傲娇的变化（时间线）
+   类名统一 tl- 前缀，避免撞上 style.css 里的卡片类
+   ───────────────────────────────────────────── */
+.timeline{ position:relative; padding:10px 0 40px; }
+.timeline::before{
+  content:"";
+  position:absolute; left:50%; top:0; bottom:0;
+  width:1px; background:rgba(26,24,21,.26);
+  transform:translateX(-.5px);
+}
+
+.tl-head{ text-align:center; padding:0 0 64px; }
+.tl-head .tl-kicker{
+  margin:0 0 14px; font-size:11px; letter-spacing:.42em; text-indent:.42em; color:#a89f92;
+}
+.tl-head h2{
+  margin:0 0 16px;
+  font-family:"Noto Serif JP","Noto Serif SC","Yu Mincho",serif;
+  font-weight:900; font-size:clamp(30px,4vw,46px); letter-spacing:.08em; color:#1a1815;
+}
+.tl-head .tl-lede{ margin:0; color:#8b857b; font-size:clamp(13px,1.4vw,15px); line-height:2; }
+
+.tl-entry{
+  display:grid; grid-template-columns:1fr 132px 1fr;
+  align-items:start; margin-bottom:76px;
+}
+.tl-art{
+  display:flex; gap:14px; align-items:flex-start; justify-content:flex-end;
+}
+.tl-text{ padding-top:6px; }
+
+.tl-entry:nth-of-type(odd)  .tl-art  { grid-column:1; }
+.tl-entry:nth-of-type(odd)  .tl-mid  { grid-column:2; }
+.tl-entry:nth-of-type(odd)  .tl-text { grid-column:3; }
+.tl-entry:nth-of-type(even) .tl-text { grid-column:1; }
+.tl-entry:nth-of-type(even) .tl-mid  { grid-column:2; }
+.tl-entry:nth-of-type(even) .tl-art  { grid-column:3; flex-direction:row-reverse; }
+
+.tl-ph img{ width:100%; height:100%; object-fit:cover; display:block; }
+.tl-ph{
+  width:190px; aspect-ratio:3/4; flex:0 0 auto;
+  background:linear-gradient(160deg,#e9e3d8,#ddd6c8);
+  border:1px solid rgba(26,24,21,.10);
+  display:flex; align-items:center; justify-content:center;
+  color:rgba(26,24,21,.22); font-size:12px; letter-spacing:.3em;
+}
+.tl-name{
+  writing-mode:vertical-rl; margin:2px 0 0;
+  font-family:"Noto Serif JP","Noto Serif SC","Yu Mincho",serif;
+  font-weight:700; font-size:17px; letter-spacing:.22em; color:#1a1815;
+}
+
+.tl-mid{
+  position:relative; display:flex; flex-direction:column; align-items:center; padding-top:8px;
+}
+.tl-year{
+  font-family:"Courier New",monospace; font-size:12px; letter-spacing:.18em;
+  color:#c8102e; background:#f7f4ee; padding:2px 6px; position:relative; z-index:1;
+}
+.tl-dot{
+  display:block; width:9px; height:9px; border-radius:50%;
+  background:#f7f4ee; border:1.5px solid #1a1815;
+  margin-top:10px; position:relative; z-index:1;
+}
+
+.tl-work{
+  margin:0 0 12px;
+  font-family:"Noto Serif JP","Noto Serif SC","Yu Mincho",serif;
+  font-size:13px; letter-spacing:.14em; color:#a89f92;
+}
+.tl-para{
+  display:block; margin:0; padding:0;
+  font-size:clamp(13.5px,1.45vw,15.5px);
+  line-height:2.05; color:#3a3632; text-align:left;
+}
+.tl-para .hl{ color:#c8102e; }
+
+/* ── 窄屏：竖线靠左，单列（用 flex，不用 grid，避免隐式列） ── */
+@media (max-width:760px){
+  .timeline::before{ display:none; }
+
+  .tl-head{ padding:0 6px 44px; }
+  .tl-head h2{ font-size:clamp(26px,7vw,34px); }
+  .tl-head .tl-lede{ padding:0 6px; font-size:13px; }
+
+  .tl-entry{
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    padding-left:46px;
+    margin-bottom:46px;
+  }
+  .tl-entry::before{
+    content:"";
+    position:absolute;
+    left:15px; top:8px; bottom:-46px;
+    width:1px;
+    background:rgba(26,24,21,.20);
+  }
+  .tl-entry:last-of-type::before{ bottom:auto; height:40px; }
+
+  .tl-art{
+    order:-1;
+    display:flex;
+    flex-direction:row !important;
+    align-items:flex-start;
+    gap:12px;
+    margin:0 0 16px;
+    justify-content:flex-start;
+  }
+  .tl-ph img{ width:100%; height:100%; object-fit:cover; display:block; }
+.tl-ph{ width:112px; }
+  .tl-name{ font-size:15px; }
+
+  .tl-mid{
+    order:-2;
+    position:static;
+    display:inline-flex;
+    flex-direction:row;
+    align-items:center;
+    gap:8px;
+    margin:0 0 10px -46px;
+    padding-left:29px;
+  }
+  .tl-year{ font-size:11px; letter-spacing:.1em; padding:2px 5px; }
+  .tl-dot{ margin:0; }
+
+  .tl-work{ font-size:11.5px; margin-bottom:8px; }
+  .tl-para{ font-size:14.5px; line-height:1.95; }
+}
+
+/* 覆盖 bubble.css 给 #mainScreen 的 flex 居中（那会把长页面顶到屏幕外） */
+#mainScreen{
+  display:block !important;
+  position:static !important;
+  inset:auto !important;
+  height:auto !important;
+  min-height:100vh;
+  overflow:visible !important;
+  opacity:0;
+  pointer-events:none;
+}
+#mainScreen.is-in{ opacity:1; pointer-events:auto; }
+
+/* ─────────────────────────────────────────────
+   主页面：目录
+   ───────────────────────────────────────────── */
+.hm-wrap{ width:100%; max-width:920px; margin:0 auto; padding:0 24px 18vh; }
+
+/* 顶栏 */
+.hm-top{
+  position:sticky; top:0; z-index:5;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:18px 0 14px;
+  background:linear-gradient(#f7f4ee 62%, rgba(247,244,238,0));
+}
+.hm-top h1{
+  margin:0;
+  font-family:"Noto Serif JP","Noto Serif SC","Yu Mincho",serif;
+  font-weight:900; font-size:clamp(19px,2.4vw,24px);
+  letter-spacing:.12em; color:#1a1815;
+}
+.hm-top h1 .dot{
+  display:inline-block; width:.30em; height:.30em; border-radius:50%;
+  background:#c8102e; margin:0 .18em .04em; vertical-align:middle;
+}
+.hm-search{
+  flex:0 1 300px;
+  display:flex; align-items:center; gap:8px;
+  border-bottom:1px solid rgba(26,24,21,.22);
+  padding:0 2px 6px;
+}
+.hm-search input{
+  flex:1; min-width:0; border:0; background:none; outline:none;
+  font:inherit; font-size:14px; color:#1a1815;
+}
+.hm-search input::placeholder{ color:#b3aa9c; }
+.hm-search svg{ width:15px; height:15px; stroke:#8b857b; fill:none; stroke-width:1.6; }
+
+/* 段落标题 */
+.hm-label{
+  position:relative; z-index:2;
+  display:inline-block;
+  background:rgba(247,244,238,.82);
+  padding:2px 10px 2px 0;
+  border-radius:4px;
+  display:flex; align-items:center; gap:9px;
+  margin:34px 0 16px;
+  font-size:12px; letter-spacing:.26em; color:#a89f92;
+}
+.hm-label::before{
+  content:""; width:6px; height:6px; border-radius:50%;
+  background:#c8102e; opacity:.75;
+}
+
+/* 关键字 */
+.hm-kw{ display:flex; flex-wrap:wrap; gap:10px; }
+.hm-kw a{
+  padding:7px 16px;
+  border:1px solid rgba(200,16,46,.34);
+  border-radius:999px;
+  color:#c8102e;
+  font-size:13px; letter-spacing:.06em;
+  text-decoration:none;
+  background:rgba(255,253,249,.94);
+  transition:background .18s, color .18s, border-color .18s;
+}
+.hm-kw a:hover{ background:#c8102e; border-color:#c8102e; color:#fff; }
+
+/* 分类网格 */
+.hm-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(158px, 1fr));
+  gap:22px 20px;
+}
+.hm-cat{ display:block; text-decoration:none; }
+.hm-cat .face{
+  position:relative;
+  aspect-ratio:1/1;
+  border-radius:10px;
+  background:linear-gradient(150deg,#efe9df,#e2dbcd);
+  border:1px solid rgba(26,24,21,.10);
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+  transition:transform .22s ease, box-shadow .22s ease, border-color .22s;
+}
+.hm-cat .face b{
+  font-family:"Noto Serif JP","Noto Serif SC","Yu Mincho",serif;
+  font-size:clamp(38px,6vw,62px);
+  font-weight:900;
+  color:rgba(26,24,21,.30);
+  letter-spacing:0;
+}
+.hm-cat .face span{
+  position:absolute; right:9px; bottom:7px;
+  font-family:"Courier New",monospace;
+  font-size:11px; color:rgba(26,24,21,.34);
+}
+.hm-cat:hover .face{
+  transform:translateY(-3px);
+  border-color:rgba(200,16,46,.4);
+  box-shadow:0 16px 30px -22px rgba(26,24,21,.5);
+}
+.hm-cat p{
+  margin:9px 0 0;
+  text-align:center;
+  font-size:13.5px; color:#3a3632; letter-spacing:.05em;
+}
+
+@media (max-width:760px){
+  .hm-wrap{ padding:0 18px 14vh; }
+  .hm-top{ flex-wrap:wrap; gap:10px; }
+  .hm-search{ flex:1 1 100%; order:2; }
+  .hm-grid{ grid-template-columns:repeat(2, 1fr); gap:18px 14px; }
+  .hm-cat .face b{ font-size:44px; }
+}
+
+.hr-bottom{ margin-top:64px; text-align:center; }
+.hr-bottom button{
+  font:inherit; font-size:13px; letter-spacing:.12em;
+  color:#8b857b; background:none; cursor:pointer;
+  border:1px solid rgba(26,24,21,.20); border-radius:999px;
+  padding:9px 22px;
+  transition:color .18s, border-color .18s;
+}
+.hr-bottom button:hover{ color:#c8102e; border-color:#c8102e; }
+
+/* 随机傲娇：一条，压在所有分类前面 */
+.hm-random{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:16px;
+  margin:26px 0 4px;
+  padding:18px 24px;
+  border:1px solid rgba(200,16,46,.45);
+  border-radius:10px;
+  background:rgba(255,253,249,.9);
+  text-decoration:none;
+  transition:background .2s, border-color .2s, transform .2s;
+}
+.hm-random:hover{
+  background:#c8102e;
+  border-color:#c8102e;
+  transform:translateY(-2px);
+}
+.hm-random:hover .t{ color:#fff; }
+.hm-random:hover .n{ color:rgba(255,255,255,.7); }
+.hm-random:hover .a{ color:#fff; transform:translateX(4px); }
+.hm-random .t{
+  font-family:"Noto Serif JP","Noto Serif SC","Yu Mincho",serif;
+  font-weight:900; font-size:clamp(17px,2.2vw,21px);
+  letter-spacing:.14em; color:#c8102e;
+  transition:color .2s;
+}
+.hm-random .n{
+  margin-left:12px;
+  font-family:"Courier New",monospace; font-size:12px; color:#a89f92;
+  transition:color .2s;
+}
+.hm-random .a{
+  font-size:13px; color:#8b857b; letter-spacing:.1em;
+  transition:color .2s, transform .2s;
+}
+
+/* 有图的分类卡 */
+.hm-cat--img .face{ padding:0; }
+.hm-cat--img .face b{ display:none; }
+.hm-cat--img .face img{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  display:block;
+}
+.hm-cat--img .face span{ display:none; }
+.hm-cat--img:hover .face img{ transform:scale(1.04); transition:transform .4s; }
+
+/* 性格只有几项，单独四列、卡面大一点 */
+.hm-grid--p{ grid-template-columns:repeat(3, 1fr); }
+@media (max-width:560px){
+  .hm-grid--p{ grid-template-columns:repeat(2, 1fr); }
+}
+
+/* 梗图类封面：整张塞进去，不裁 */
+.hm-cat--meme .face{ background:#fff; }
+.hm-cat--meme .face img{ object-fit:contain; }
+
+/* 角色卡网格 */
+.ch-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(158px, 1fr));
+  gap:26px 18px;
+}
+
+/* 角色卡 */
+.ch-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(158px, 1fr));
+  gap:26px 18px;
+  margin-top:4px;
+}
+.ch{ text-decoration:none; display:block; }
+.ch-img{
+  aspect-ratio:1/1;
+  border-radius:10px;
+  overflow:hidden;
+  background:#eae3d6;
+  box-shadow:0 1px 2px rgba(26,24,21,.06);
+}
+.ch-img img{
+  width:100%; height:100%;
+  object-fit:cover; display:block;
+  transition:transform .5s cubic-bezier(.2,.7,.3,1);
+}
+.ch:hover .ch-img img{ transform:scale(1.05); }
+.ch-name{
+  margin:10px 0 2px;
+  font-family:"Noto Serif JP","Noto Serif SC","Yu Mincho",serif;
+  font-weight:700; font-size:14px; color:#1a1815;
+  letter-spacing:.04em;
+}
+.ch-work{
+  margin:0; font-size:11.5px; color:#8b857b;
+  letter-spacing:.02em;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+
+
+/* 分类页 / 角色页 */
+.view{ margin-top:8px; }
+.back{
+  display:inline-block; margin-bottom:26px;
+  font-size:12.5px; color:#8b857b; text-decoration:none;
+  letter-spacing:.06em;
+}
+.back:hover{ color:#c8102e; }
+.view-t{
+  margin:0 0 6px;
+  font-family:"Noto Serif JP","Noto Serif SC","Yu Mincho",serif;
+  font-size:clamp(24px,3.4vw,34px); font-weight:900; letter-spacing:.08em;
+}
+.view-sub{ margin:0 0 30px; font-size:12.5px; color:#8b857b; }
+
+.cd{ display:grid; grid-template-columns:300px 1fr; gap:44px; align-items:start; }
+.cd-img img{
+  width:100%; display:block; border-radius:12px;
+  box-shadow:0 2px 6px rgba(26,24,21,.10);
+}
+.cd-info h2{
+  margin:0 0 4px;
+  font-family:"Noto Serif JP","Noto Serif SC","Yu Mincho",serif;
+  font-size:clamp(26px,3.6vw,38px); font-weight:900; letter-spacing:.06em;
+}
+.cd-ja{ margin:0 0 16px; font-size:13px; color:#8b857b; }
+.cd-work{ margin:0 0 18px; font-size:14px; color:#54504a; }
+.cd-tags{ margin:0 0 26px; display:flex; flex-wrap:wrap; gap:8px; }
+.tg{
+  font-size:11.5px; padding:3px 11px; border-radius:99px;
+  border:1px solid rgba(200,16,46,.38); color:#c8102e;
+}
+.tg-g{ border-color:rgba(26,24,21,.16); color:#54504a; }
+.cd-line, .cd-note{
+  margin:0 0 12px; font-size:14px; color:#8b857b;
+  border-left:2px solid rgba(26,24,21,.12); padding-left:12px;
+}
+@media (max-width:700px){
+  .cd{ grid-template-columns:1fr; gap:24px; }
+  .cd-img img{ max-width:260px; }
+}
+
+/* 作者样式里的 display 会盖掉浏览器默认的 [hidden]，这里强制 */
+[hidden]{ display:none !important; }
+
+
+/* ── 三个视图：目录 / 分类 / 角色 ── */
+.view{ padding: 8px 0 60px; }
+
+.back{
+  display:inline-block; margin-bottom:26px;
+  font-size:12.5px; letter-spacing:.06em;
+  color:#8b857b; text-decoration:none;
+}
+.back:hover{ color:var(--accent); }
+
+#catTitle{
+  font-family:"Noto Serif JP","Songti SC",serif;
+  font-size:32px; font-weight:700; color:var(--fg);
+  margin:0 0 6px; letter-spacing:.02em;
+}
+#catSub{ margin:0 0 34px; font-size:12.5px; color:#8b857b; letter-spacing:.04em; }
+
+/* 角色卡网格 */
+.ch-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(158px, 1fr));
+  gap:26px 18px;
+}
+
+/* 角色卡 */
+.ch{ display:block; text-decoration:none; color:inherit; }
+.ch-img{
+  aspect-ratio:1/1; overflow:hidden;
+  border-radius:10px; background:#e8e2d6;
+}
+.ch-img img{
+  width:100%; height:100%; object-fit:cover; display:block;
+  transition:transform .45s cubic-bezier(.2,.7,.3,1);
+}
+.ch:hover .ch-img img{ transform:scale(1.05); }
+.ch-name{ margin:10px 0 2px; font-size:13.5px; color:var(--fg); letter-spacing:.02em; }
+.ch-work{
+  margin:0; font-size:11.5px; color:#8b857b; letter-spacing:.02em;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+
+/* 角色详情 */
+#charBody{
+  display:grid; grid-template-columns:minmax(200px,290px) 1fr;
+  gap:40px; align-items:start;
+}
+.cd-img{ border-radius:12px; overflow:hidden; background:#e8e2d6; }
+.cd-img img{ width:100%; display:block; }
+.cd-info h2{
+  font-family:"Noto Serif JP","Songti SC",serif;
+  font-size:34px; line-height:1.25; margin:0 0 6px; color:var(--fg);
+}
+.cd-ja{ font-size:13px; color:#8b857b; margin:0 0 4px; letter-spacing:.04em; }
+.cd-work{ font-size:13px; color:#54504a; margin:0 0 18px; }
+.cd-tags{ display:flex; gap:8px; flex-wrap:wrap; margin:0 0 22px; }
+.tg{
+  font-size:11.5px; padding:3px 11px; border-radius:999px;
+  border:1px solid rgba(200,16,46,.45); color:var(--accent);
+}
+.tg-g{ border-color:rgba(26,24,21,.16); color:#54504a; }
+.cd-line{
+  font-family:"Noto Serif JP","Songti SC",serif;
+  font-size:17px; line-height:1.9; color:var(--fg);
+  border-left:2px solid var(--accent); padding-left:16px; margin:0 0 22px;
+}
+.cd-note{ font-size:14.5px; line-height:1.95; color:#54504a; margin:0; }
+
+@media (max-width:720px){
+  #charBody{ grid-template-columns:1fr; gap:24px; }
+  #catTitle{ font-size:26px; }
+}
+
+/* 品牌与内页 */
+.brand{
+  color:var(--fg); text-decoration:none;
+  font-family:"Noto Serif JP","Songti SC",serif;
+  font-size:19px; font-weight:700; letter-spacing:.04em;
+}
+.brand span{ color:var(--accent); margin:0 .2em; }
+.hm-cat p em{ font-style:normal; font-size:10.5px; color:#a89f92; margin-left:6px; letter-spacing:0; }
+.cnt{ margin:0 0 30px; font-size:12.5px; color:#8b857b; letter-spacing:.06em; }
+body.page-inner .page{ padding-top:56px; }
+body.page-inner h1{
+  font-family:"Noto Serif JP","Songti SC",serif;
+  font-size:32px; font-weight:700; margin:0 0 8px; letter-spacing:.02em;
+}
+
+/* ── 可点击的标签（角色详情页 → 搜索结果页） ── */
+a.tg{
+  display:inline-block; text-decoration:none; line-height:1.7;
+  cursor:pointer;
+  transition:background .18s ease, border-color .18s ease, color .18s ease;
+}
+a.tg:hover{ background:rgba(200,16,46,.09); border-color:#c8102e; color:#a30d24; }
+a.tg:active{ transform:translateY(1px); }
+a.tg-g:hover{ background:rgba(26,24,21,.07); border-color:rgba(26,24,21,.42); color:#1a1815; }
+a.tg:focus-visible{ outline:2px solid #c8102e; outline-offset:2px; }
+
+/* 搜索结果页的空状态标签行 */
+#kw{ margin:0 0 34px; }
+#kw .hm-label{ margin-bottom:12px; }
+
+/* ── 角色页：台词与批注 ── */
+.cd-quote{ margin:0 0 24px; }
+.cd-quote .cd-line{ margin:0 0 8px; }
+.cd-quote .cd-tr{ font-size:14px; line-height:1.9; color:#54504a; margin:0 0 10px 18px; }
+.cd-quote .cd-en{ font-size:13px; line-height:1.8; color:#7c766c; margin:0 0 10px 18px; font-style:italic; }
+.cd-quote .cd-src{ font-size:11.5px; line-height:1.7; color:#a39c90; letter-spacing:.03em; margin:0 0 0 18px; }
+.cd-lnk{ color:#a39c90; text-decoration:none; border-bottom:1px solid rgba(163,156,144,.45); }
+.cd-lnk:hover{ color:#c8102e; border-bottom-color:#c8102e; }

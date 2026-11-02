@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+  <meta name="referrer" content="same-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>搜索 · 傲娇图鉴</title>
+<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="paper.css?v=3">
+<link rel="stylesheet" href="main.css?v=6">
+</head>
+<body class="intro-done page-inner">
+  <div id="wall" aria-hidden="true"></div>
+  <div id="veil" aria-hidden="true"></div>
+  <main id="mainScreen" class="is-in" style="opacity:1;pointer-events:auto">
+    <div class="page">
+      <div class="hm-top">
+        <a class="brand" href="index.html?view=home">傲娇<span>·</span>图鉴</a>
+        <div class="hm-search">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.2-4.2"/></svg>
+          <input type="search" id="q" placeholder="搜角色名、作品名、标签" autocomplete="off">
+        </div>
+      </div>
+      <a class="back" href="index.html?view=home">← 回目录</a>
+      <h1 id="t">搜索</h1>
+      <p id="s" class="cnt"></p>
+      <div class="hm-kw" id="kw"></div>
+      <div class="ch-grid" id="g"></div>
+    </div>
+  </main>
+<script src="data.js"></script>
+<script>
+(function () {
+  var C = window.CHARS || [];
+  var CATS = window.CATS || [];
+  var input = document.getElementById('q');
+  var tEl = document.getElementById('t');
+  var sEl = document.getElementById('s');
+  var gEl = document.getElementById('g');
+  var kwEl = document.getElementById('kw');
+
+  /* 所有能当标签用的名字：六种性格 + 九种番剧类型 */
+  var TAGS = CATS.map(function (c) { return { kind: c.kind, label: c.label }; });
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (m) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m];
+    });
+  }
+
+  function hasTag(ch, label) {
+    if (ch.type === label) return true;
+    return (ch.genres || []).indexOf(label) >= 0;
+  }
+
+  /* 全文字段：名字（中日）、作品（中日）、年份、性格、类型 */
+  function hay(ch) {
+    return [ch.name, ch.native, ch.work, ch.workJa, ch.year, ch.type]
+      .concat(ch.genres || []).join(' ').toLowerCase();
+  }
+
+  function card(ch) {
+    return '<a class="ch" href="char.html?v=4&id=' + ch.anilist + '">' +
+      '<div class="ch-img"><img src="' + esc(ch.img) + '" alt="' + esc(ch.name) + '" loading="lazy"></div>' +
+      '<p class="ch-name">' + esc(ch.name) + '</p>' +
+      '<p class="ch-work">' + esc(ch.work) + ' · ' + esc(ch.year) + '</p></a>';
+  }
+
+  function chips(list) {
+    kwEl.innerHTML = '<div class="hm-label">点一个标签，看这一类</div>' + list.map(function (t) {
+      return '<a class="hm-chip" href="search.html?q=' + encodeURIComponent(t.label) + '">' + esc(t.label) + '</a>';
+    }).join('');
+  }
+
+  function render(raw) {
+    var q = (raw || '').trim();
+    var terms = q ? q.toLowerCase().split(/\s+/) : [];
+    var tagHit = null;
+    if (q) {
+      for (var i = 0; i < TAGS.length; i++) if (TAGS[i].label === q) { tagHit = TAGS[i]; break; }
+    }
+
+    var list = [];
+    if (q) {
+      if (tagHit) {
+        list = C.filter(function (ch) { return hasTag(ch, tagHit.label); });
+      } else {
+        list = C.filter(function (ch) {
+          var h = hay(ch);
+          for (var k = 0; k < terms.length; k++) if (h.indexOf(terms[k]) < 0) return false;
+          return true;
+        });
+      }
+      list = list.slice().sort(function (a, b) { return (b.fav || 0) - (a.fav || 0); });
+    }
+
+    if (!q) {
+      tEl.textContent = '搜索';
+      sEl.textContent = '输入角色名、作品名或标签；也可以直接点下面的标签。';
+      gEl.innerHTML = '';
+      kwEl.style.display = '';
+      chips(TAGS);
+      document.title = '搜索 · 傲娇图鉴';
+      return;
+    }
+
+    kwEl.style.display = 'none';
+    if (tagHit) {
+      tEl.textContent = tagHit.label;
+      sEl.textContent = '标签 · ' + list.length + ' 位';
+    } else {
+      tEl.textContent = '「' + q + '」';
+      sEl.textContent = list.length + ' 位';
+    }
+    document.title = q + ' · 傲娇图鉴';
+    gEl.innerHTML = list.length
+      ? list.map(card).join('')
+      : '<p class="cnt">没有找到。换个更短的关键字，或者清空后点一个标签。</p>';
+  }
+
+  var q0 = '';
+  try { q0 = new URLSearchParams(location.search).get('q') || ''; } catch (e) {}
+  input.value = q0;
+  render(q0);
+
+  /* 边打边搜，并把关键字同步到地址栏（不产生新历史，方便分享/刷新） */
+  var timer = null;
+  input.addEventListener('input', function () {
+    clearTimeout(timer);
+    var v = input.value;
+    render(v);
+    try {
+      var u = new URL(location.href);
+      var t = v.trim();
+      if (t) u.searchParams.set('q', t); else u.searchParams.delete('q');
+      history.replaceState(null, '', u.pathname + u.search);
+    } catch (e) {}
+  });
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); render(input.value); }
+  });
+
+  /* 从角色页/分类页过来的：左上角「返回」回到那一页 */
+  var back = document.querySelector('.back');
+  var ref = document.referrer || '';
+  if (back && ref.indexOf(location.origin) === 0 && /\/char\.html|\/cat\.html/.test(ref)) {
+    back.href = ref;
+    back.textContent = '← 返回';
+  }
+})();
+</script>
+</body>
+</html>

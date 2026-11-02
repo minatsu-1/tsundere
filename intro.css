@@ -1,0 +1,112 @@
+/* ─────────────────────────────────────────────
+   开场：字从上方落下、停、淡出
+   颜色取自站点变量，接到正片时底色是连的。
+   ───────────────────────────────────────────── */
+
+#intro{
+  position:fixed; inset:0; z-index:9000;
+  background: var(--bg, #f7f4ee);
+  color: var(--fg, #1a1815);
+  overflow:hidden;
+  font-family:"Noto Serif JP","Noto Serif SC","Yu Mincho","MS Mincho","SimSun",serif;
+  background-image: repeating-linear-gradient(0deg,
+      rgba(26,24,21,.016) 0 1px, transparent 1px 5px);
+  -webkit-user-select:none; user-select:none;
+  cursor:default;
+}
+
+#intro.is-done{
+  opacity:0;
+  transition: opacity .18s linear;
+  pointer-events:none;
+}
+
+body.intro-lock{ overflow:hidden; }
+
+/* 出场靠 --o 这个数值属性控制。注册成 <number> 之后它才能被 transition 平滑插值；
+   平时不开过渡，所以出现是硬的（瞬间满格）；只有 .is-fading 那一刻才软下来淡出。 */
+@property --o{
+  syntax:'<number>';
+  inherits:false;
+  initial-value:0;
+}
+
+/* ── 一句台词 ───────────────────────────────── */
+.line{
+  position:absolute;
+  left:var(--x, 4%);
+  top:var(--y, 20%);
+  line-height:1.06;
+  letter-spacing:-.01em;
+  font-weight:900;
+  white-space:nowrap;
+  opacity:var(--o, 0);
+  transform-origin:50% 50%;
+  /* 以自身中心对准落点；--dx/--dy 是朝消失点漂移的距离，--s 是缩小比例 */
+  transform: translate(calc(-50% + var(--dx, 0) * 1vw),
+                       calc(-50% + var(--dy, 0) * 1vh))
+             scale(var(--s, 1));
+  filter: blur(var(--blur, 0px));
+  will-change:transform, opacity, filter;
+}
+
+.line.is-fading{ transition: --o 460ms linear; }
+
+/* 钉宫三连那三个词稍轻一点，叠起来才不会糊成一团 */
+.line--triple{ font-weight:800; }
+
+/* ── 中文翻译，跟着最新那句走，轮流出现在四角 ── */
+.zh{
+  position:absolute;
+  font-family:"HarmonyOS Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:clamp(12px, 1.45vw, 19px);
+  letter-spacing:.1em;
+  color:#5a544b;
+  opacity:0;
+  white-space:nowrap;
+  will-change:transform, opacity;
+}
+.corner--lt{ left:4%; top:5%; }
+.corner--rt{ right:4%; top:5%; }
+.corner--lb{ left:4%; bottom:6%; }
+.corner--rb{ right:4%; bottom:6%; }
+
+/* ── 收尾：ツンデレ ─────────────────────────── */
+.intro__title{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:.28em;
+  opacity:0;
+  pointer-events:none;
+}
+.intro__title.is-on{ opacity:1; }
+
+.intro__ep{
+  font-family:"JetBrains Mono", ui-monospace, Consolas, monospace;
+  font-size:clamp(10px, 1.1vw, 15px);
+  letter-spacing:.4em;
+  text-indent:.4em;
+  color:#8b857b;
+}
+
+.intro__name{
+  font-size:clamp(76px, 16vw, 232px);
+  line-height:1;
+  letter-spacing:.02em;
+  font-weight:900;
+  /* 斜向揭开，整段里唯一的位移动画 */
+  clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+}
+.intro__name.is-wipe{
+  clip-path: polygon(0 0, 112% 0, 100% 100%, 0 100%);
+  transition: clip-path .46s cubic-bezier(.7,0,.3,1);
+}
+
+.intro__zh{
+  font-family:"HarmonyOS Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:clamp(13px, 1.6vw, 20px);
+  letter-spacing:.7em;
+  text-indent:.7em;
+  color:#6b665e;
+}
